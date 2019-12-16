@@ -37,4 +37,11 @@ Rcrawler(Website="https://www.defense.gov/Newsroom/Contracts/", MaxDepth=1,
 
 #pattern:
 #semicolon or start of line/space/Cap____spaceLLC or Corp or whatever
-#pattern <- "(^|;)//w(LLC|Corp|JV|Inc.)"
+#pattern <- "(^|;)//w(LLC|Corp\.|JV|Inc\.|LP|Department of word|Co\.|PC)"
+pattern <- "(^|;).*(Inc\\.|LLC|Corp\\.|JV|LP|Co\\.|PC)"
+
+#with look behind
+pattern <- "(^|(?<= ;\\s)).*(Inc\\.|LLC|Corp\\.|JV|LP|Co\\.|PC)"
+
+company_names <- regmatches(contract_text, gregexpr(pattern, contract_text))
+

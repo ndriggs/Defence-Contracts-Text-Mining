@@ -34,14 +34,36 @@ Rcrawler(Website="https://www.defense.gov/Newsroom/Contracts/", MaxDepth=1,
          crawlUrlfilter = "/Contracts/", ExtractAsText = TRUE, ExtractCSSPat = c(".title"))
 
 
+#modifying the vector- look for (\r\n)+ and then seperate them into two different elements
+#or can use look behind for the newline
+#to seperate can use the contract_text <- insert(contract_text, ats = pos, value) from R.utils package
 
-#pattern:
-#semicolon or start of line/space/Cap____spaceLLC or Corp or whatever
 #pattern <- "(^|;)//w(LLC|Corp\.|JV|Inc\.|LP|Department of word|Co\.|PC)"
-pattern <- "(^|;).*(Inc\\.|LLC|Corp\\.|JV|LP|Co\\.|PC)"
 
-#with look behind
-pattern <- "(^|(?<= ;\\s)).*(Inc\\.|LLC|Corp\\.|JV|LP|Co\\.|PC)"
 
+#with look behind and end of word at end
+pattern <- "(^|(?<=;\\s)).*(Inc\\.|LLC|Corp\\.|JV|LP|Co\\.|PC)\\>" #also can do the look ahead for a comma
+
+#this one works the best so far
+#modifications- 1. still needs to catch companies at very start of line that don't end in corp or the like
+#2. catch the 2nd and 3rd mention of a company
+
+#test, I can't get the look behind to work, or look ahead for that matter
+pattern <- "(?<=\n).{15}"
+
+#the one that workds the best
+pattern <- "^.*(Inc\\.|LLC|Corp\\.|JV|LP|Co\\.|PC)"
 company_names <- regmatches(contract_text, gregexpr(pattern, contract_text))
+company_names
+
+
+#now extract the dollar amounts
+
+#this one thinks it has to have maximum, and also grabs the "awarded a", need to make it backward looking
+money_pattern <- "awarded\\sa(n)?\\s(maximum)?\\s\\$\\d+(?:\\,\\d{3})+" 
+
+#this one works
+money_pattern <- "\\$\\d+(?:\\,\\d{3})+"    
+contract_amounts <- regmatches(contract_text, gregexpr(money_pattern, contract_text))
+contract_amounts
 

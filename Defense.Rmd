@@ -1,0 +1,26 @@
+---
+title: "Defense"
+author: "Nathaniel Driggs"
+date: "12/18/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+install.packages("reticulate")
+library(reticulate)
+```
+
+##Webscrape the text
+```{r}
+url <- "https://www.defense.gov/Newsroom/Contracts/Contract/Article/2028834/"
+webpage <- read_html(url)
+
+#Use the CSS selector 'p' to scrape the text
+contract_text_html <- html_nodes(webpage, "p")
+
+#convert it to text
+contract_text <- html_text(contract_text_html)
+```
+
+

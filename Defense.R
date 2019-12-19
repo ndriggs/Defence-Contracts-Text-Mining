@@ -52,10 +52,11 @@ pattern <- "(^|(?<=;\\s)).*(Inc\\.|LLC|Corp\\.|JV|LP|Co\\.|PC)\\>" #also can do 
 pattern <- "(?<=\n).{15}"
 
 #the one that workds the best
-pattern <- "^.*(Inc\\.|LLC|Corp\\.|JV|LP|Co\\.|PC)"
+#how do I catch Co. LLC,
+pattern <- "^.*?(Inc\\.|LLC|Corp\\.|JV|LP|Co|Co\\.|PC)" #what to do if it has the . or not after Co
 company_names <- regmatches(contract_text, gregexpr(pattern, contract_text))
 company_names
-
+#if multiple companies listed, reject it?
 
 #now extract the dollar amounts
 
@@ -66,4 +67,19 @@ money_pattern <- "awarded\\sa(n)?\\s(maximum)?\\s\\$\\d+(?:\\,\\d{3})+"
 money_pattern <- "\\$\\d+(?:\\,\\d{3})+"    
 contract_amounts <- regmatches(contract_text, gregexpr(money_pattern, contract_text))
 contract_amounts
+
+#put the two lists in a data frame
+new_data <- data.frame(company_names, contract_amounts)#************this doesn't work
+
+#Is there a better way to do this? Add the new data to the running data frame
+#Also, how do you have a data frame that you always have running each time you rerun your code, do you just have to initialize it the first
+#time?
+running_tally <- merge(x=running_tally, y=new_data, all.x=TRUE, by="company_names")
+running_tally$total_contract_amount <- running_tally$total_contract_amount + running_tally$contract_amounts
+running_tally$contract_amounts <- NULL
+
+
+if(company_names == df$Company){
+  df$TotalContractsValue += contract_amounts
+}
 

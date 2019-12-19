@@ -54,6 +54,8 @@ pattern <- "(?<=\n).{15}"
 #the one that workds the best
 #how do I catch Co. LLC,
 pattern <- "^.*?(Inc\\.|LLC|Corp\\.|JV|LP|Co|Co\\.|PC)" #what to do if it has the . or not after Co
+pattern <- "(?<=;\s).*?(Inc\\.|LLC|Corp\\.|JV|LP|Co|Co\\.|PC)"
+pattern <- "(?<=;\s)+.*?,"
 company_names <- regmatches(contract_text, gregexpr(pattern, contract_text))
 company_names
 #if multiple companies listed, reject it?

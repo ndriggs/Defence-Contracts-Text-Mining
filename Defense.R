@@ -1,7 +1,7 @@
-install.packages("tm")
+install.packages("R.utils")
 install.packages("rvest")
 
-library("tm")
+library("R.utils")
 library("rvest")
 
 url <- "https://www.defense.gov/Newsroom/Contracts/"
@@ -38,6 +38,14 @@ Rcrawler(Website="https://www.defense.gov/Newsroom/Contracts/", MaxDepth=1,
 #or can use look behind for the newline
 #to seperate can use the contract_text <- insert(contract_text, ats = pos, value) from R.utils package
 
+#make sure each paragraph has its own element in the vector
+second_paragraph_pattern <- "(?<=\\r\\n).{90,}"
+second_paragraphs <- regmatches(contract_text, gregexpr(second_paragraph_pattern, contract_text, perl = TRUE))
+second_paragraphs
+
+
+contract_text <- insert(contract_text, ats = pos, value) #figure out how to make the pos and value work
+
 #pattern <- "(^|;)//w(LLC|Corp\.|JV|Inc\.|LP|Department of word|Co\.|PC)"
 
 
@@ -55,19 +63,14 @@ pattern <- "(?<=\n).{15}"
 #how do I catch Co. LLC,
 pattern <- "^.*?(Inc\\.|LLC|Corp\\.|JV|LP|Co|Co\\.|PC)" #what to do if it has the . or not after Co
 pattern <- "(?<=;\s).*?(Inc\\.|LLC|Corp\\.|JV|LP|Co|Co\\.|PC)"
-pattern <- "(?<=;\s)+.*?,"
-company_names <- regmatches(contract_text, gregexpr(pattern, contract_text))
+pattern <- "(?<=;\\s)+.*?,"
+company_names <- regmatches(contract_text, gregexpr(pattern, contract_text, perl = TRUE))
 company_names
 #if multiple companies listed, reject it?
 
 #now extract the dollar amounts
-
-#this one thinks it has to have maximum, and also grabs the "awarded a", need to make it backward looking
-money_pattern <- "awarded\\sa(n)?\\s(maximum)?\\s\\$\\d+(?:\\,\\d{3})+" 
-
-#this one works
-money_pattern <- "\\$\\d+(?:\\,\\d{3})+"    
-contract_amounts <- regmatches(contract_text, gregexpr(money_pattern, contract_text))
+money_pattern <- "awarded\\san?\\s(?:maximum\\s)?\\$\\K\\d+(?:\\,\\d{3})+" 
+contract_amounts <- regmatches(contract_text, gregexpr(money_pattern, contract_text, perl = TRUE))
 contract_amounts
 
 #put the two lists in a data frame

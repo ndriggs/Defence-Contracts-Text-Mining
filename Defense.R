@@ -43,8 +43,12 @@ second_paragraph_pattern <- "(?<=\\r\\n).{90,}"
 second_paragraphs <- regmatches(contract_text, gregexpr(second_paragraph_pattern, contract_text, perl = TRUE))
 second_paragraphs
 
+#find where those second paragraphs are
+for(i in second_paragraphs){
+  if(!is.null(sapply(i, length)) & sapply(i, length) > 0) indicies <- c(indicies, i)
+}
 
-contract_text <- insert(contract_text, ats = pos, value) #figure out how to make the pos and value work
+contract_text <- insert(contract_text, ats = indicies, second_paragraphs[indicies]) #figure out how to make the pos and value work
 
 #pattern <- "(^|;)//w(LLC|Corp\.|JV|Inc\.|LP|Department of word|Co\.|PC)"
 

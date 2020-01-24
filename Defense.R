@@ -19,63 +19,53 @@ contract_text <- html_text(contract_text_html)
 #to seperate can use the contract_text <- insert(contract_text, ats = pos, value) from R.utils package
 
 #NEXT STEPS:
-#1. Below, make it so when it extracts the 2nd paragraphs with the regex it also removes it from the 
-#original contract_text. Can use "how to remove when using regex" or "regex remove text" search
 
-#2. Change the company regex pattern so that it picks up the "LVI" in index 16, change it so it just
-#goes from the start to the comma essential, or just see if that works
-
-#3. get the data frame stuff up and running
+#1. get the data frame stuff up and running
 
 #make sure each paragraph has its own element in the vector
 second_paragraph_pattern <- "(?<=\\r\\n).{90,}"
 second_paragraphs <- regmatches(contract_text, gregexpr(second_paragraph_pattern, contract_text, perl = TRUE))
+contract_text <- gsub(second_paragraph_pattern, "", contract_text, perl = TRUE)
+
 
 #find where those second paragraphs are
 indicies <- which(sapply(second_paragraphs, length) > 0) + 1
-
 second_paragraphs <- second_paragraphs[lengths(second_paragraphs) > 0]
+contract_text <- insert(contract_text, ats = indicies, values=second_paragraphs)
 
-
-
-
-#pattern <- "(^|;)//w(LLC|Corp\.|JV|Inc\.|LP|Department of word|Co\.|PC)"
-
-
-#with look behind and end of word at end
-#pattern <- "(^|(?<=;\\s)).*(Inc\\.|LLC|Corp\\.|JV|LP|Co\\.|PC)\\>" #also can do the look ahead for a comma
-
-#this one works the best so far
-#modifications- 1. still needs to catch companies at very start of line that don't end in corp or the like
-#2. catch the 2nd and 3rd mention of a company
-
-#test, I can't get the look behind to work, or look ahead for that matter
-#pattern <- "(?<=\n).{15}"
-
-#the one that workds the best
-#how do I catch Co. LLC,
-pattern <- "^.*?(Inc\\.|LLC|Corp\\.|JV|LP|Co|Co\\.|PC)" #what to do if it has the . or not after Co
-#pattern <- "(?<=;\\s).*?(Inc\\.|LLC|Corp\\.|JV|LP|Co|Co\\.|PC)"
-#pattern <- "(?<=;\\s)+.*?,"
+#extract company names
+pattern <- "^.*?(Inc\\.|LLC|Corp\\.|JV|LP|Co|Co\\.|PC|(?=,))" 
 company_names <- regmatches(contract_text, gregexpr(pattern, contract_text, perl = TRUE))
 company_names
-#if multiple companies listed, reject it?
 
 #now extract the dollar amounts
 money_pattern <- "awarded\\san?\\s.*?(?:maximum\\s)?.*?\\$\\K\\d+(?:\\,\\d{3})+" 
 contract_amounts <- regmatches(contract_text, gregexpr(money_pattern, contract_text, perl = TRUE))
 contract_amounts
 
+company_names[lengths(company_names) == 0] <- NA_character_
+contract_amounts[lengths(contract_amounts) == 0] <- NA_character_
 
 #put the two lists in a data frame
-new_data <- data.frame(company_names, contract_amounts)#************this doesn't work
+new_data <- cbind(company_names, contract_amounts)
+new_data <- data.frame(new_data)
+
+
+#We're here now!
+
+#1. Assume you already have the running tally data frame (make a test one), and then go from there and use it to test
+#   the merging by, melting, adding up and all that 
+
+
 
 #Is there a better way to do this? Add the new data to the running data frame
 #Also, how do you have a data frame that you always have running each time you rerun your code, do you just have to initialize it the first
 #time?
-running_tally <- merge(x=running_tally, y=new_data, all.x=TRUE, by="company_names")
+running_tally <- data.frame(company_names = NA, total_contract_amount = NA)
+new_data <- merge(x=new_data, y=new_data, all.x=TRUE)
 running_tally$total_contract_amount <- running_tally$total_contract_amount + running_tally$contract_amounts
 running_tally$contract_amounts <- NULL
+
 
 
 if(company_names == df$Company){

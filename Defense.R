@@ -56,13 +56,20 @@ new_data <- data.frame(new_data)
 #1. Assume you already have the running tally data frame (make a test one), and then go from there and use it to test
 #   the merging by, melting, adding up and all that 
 
-
+#  Having trouble with the merge function... 
+#  1) try using an data frame initialized with two NA columns
+#  2) make sure everything's filled (no character(0)s)
+#     the same types (character, numeric, etc)
+#     try making sure both data frames are the same type
+#     both data frames are made of vectors not lists (unlist function?)
+#     finding a different function
+#     can maybe try as.data.frame on line 51
 
 #Is there a better way to do this? Add the new data to the running data frame
 #Also, how do you have a data frame that you always have running each time you rerun your code, do you just have to initialize it the first
 #time?
 running_tally <- data.frame(company_names = NA, total_contract_amount = NA)
-new_data <- merge(x=new_data, y=new_data, all.x=TRUE)
+new_data <- merge(x=new_data, y=new_data, by = "company_names", all.x=TRUE)
 running_tally$total_contract_amount <- running_tally$total_contract_amount + running_tally$contract_amounts
 running_tally$contract_amounts <- NULL
 

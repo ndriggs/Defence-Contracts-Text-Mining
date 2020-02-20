@@ -48,14 +48,13 @@ contract_amounts
 
 
 
-company_names[lengths(company_names) == 0] <- NA_character_
-contract_amounts[lengths(contract_amounts) == 0] <- NA_integer_
+company_names[lengths(company_names) == 0] <- ""
+contract_amounts[lengths(contract_amounts) == 0] <- 0
 
 #******haven't tried these 2 lines yet, can see if it makes a difference
 company_names <- as.character(company_names)
-contract_amounts <- as.numeric(paste(contract_amounts)) #<------ figure out how to convert "factor"
+contract_amounts <- as.numeric(contract_amounts) #<------ figure out how to convert "factor"
 #or list to numeric or integer
-
 
 
 #put the two lists in a data frame
@@ -63,31 +62,21 @@ contract_amounts <- as.numeric(paste(contract_amounts)) #<------ figure out how 
 new_data <- cbind(company_names, contract_amounts)
 new_data <- data.frame(new_data)
 
-df <- data_frame(company_names=company_names, contract_amounts=contract_amounts)
+#df <- data.frame("company_names"=company_names, "contract_amounts"=contract_amounts)
+#df <- data.frame(company_names, contract_amounts)
 
+duplicated(new_data$company_names)
 
-
-#We're here now!
-
-#1. Assume you already have the running tally data frame (make a test one), and then go from there and use it to test
-#   the merging by, melting, adding up and all that 
-
-#  Having trouble with the merge function... 
-#  1) try using an data frame initialized with two NA columns
-#  2) make sure everything's filled (no character(0)s)
-#     the same types (character, numeric, etc)
-#     try making sure both data frames are the same type
-#     both data frames are made of vectors not lists (unlist function?)
-#     finding a different function
-#     can maybe try as.data.frame on line 51
 
 #Is there a better way to do this? Add the new data to the running data frame
 #Also, how do you have a data frame that you always have running each time you rerun your code, do you just have to initialize it the first
 #time?
-running_tally <- data_frame(company_names = NA, total_contract_amount = NA)
+running_tally <- data.frame("company_names" = c("Lockheed Martin Corp.", "KPMG LLP", "Other Company"), "total_contract_amount" = c(100, 0, 1))
 
 running_tally$company_names <- as.character(running_tally$company_names)
 running_tally$total_contract_amount <- as.numeric(running_tally$total_contract_amount)
+
+
 
 
 running_tally <- merge(x=running_tally, y=new_data, by = "company_names", all.x=TRUE, all.y = TRUE)

@@ -58,3 +58,12 @@ names(new_data) <- c("Date", "Company Name", "Contract Amount")
 all_data <- rbind(all_data, new_data)
 
 write.csv(all_data, "contract_data.csv")
+
+#to compare the culmulative totals between companies
+all_data %>% 
+  +     group_by(`Company Name`) %>% 
+  +     mutate(cumulative_amount = cumsum(`Contract Amount`)) %>% 
+  +     ggplot(aes(x = `Company Name`, y = cumulative_amount)) +
+  +     geom_point() +
+  +     geom_line() 
+#  +     facet_wrap(~`Company Name`)
